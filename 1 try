@@ -1,0 +1,423 @@
+#include <iostream> 
+#include <fstream>
+#include <string>
+#include <Windows.h>
+#include <iomanip>
+#include <set>
+#include <chrono>
+using namespace std;
+int const n = 100;
+int const Ner = 10;
+int getRandomNumber()
+{
+	return rand() % ::Ner;
+}        // количество имен в массиве
+const char* names[::Ner] = { "Jhon", "Alex", "Georg", "Sidny", "Angelina",
+								"Kollin", "Mary", "Sun", "Robert", "Garry" };
+const char* snames[::Ner] = { "Abram", "Dauny", "Jhukof", "Jolly", "Umbrella",
+								"Mishel", "Ackles", "Potter", "North", "Sikker" };
+struct str {
+	string type;
+	string name;
+	int day;
+	int mou;
+	int year;
+	int per;
+	string numb;
+};
+str wow[n];
+set <string> typN{ "Single", "Double", "Triple", "Extra", "Presidential" };
+void In() { //создаю файл на 11111 записей
+	std::ofstream out;          // поток для записи
+	out.open("C:\\Main.txt"); // окрываем файл для записи
+	if (out.is_open())
+	{
+		for (int i = 0; i < n; ++i) {
+			switch (i % 5) {
+			case 0:
+				out << names[getRandomNumber()] << ' ' << snames[getRandomNumber()];
+				out << ' ';
+				out << "Single ";
+				break;
+			case 1:
+				out << names[getRandomNumber()] << ' ' << snames[getRandomNumber()];
+				out << ' ';
+				out << "Double ";
+				break;
+			case 2:
+				out << names[getRandomNumber()] << ' ' << snames[getRandomNumber()];
+				out << ' ';
+				out << "Triple ";
+				break;
+			case 3:
+				out << names[getRandomNumber()] << ' ' << snames[getRandomNumber()];
+				out << ' ';
+				out << "Extra ";
+				break;
+			case 4:
+				out << names[getRandomNumber()] << ' ' << snames[getRandomNumber()];
+				out << ' ';
+				out << "Presidential ";
+				break;
+			}
+			if (i == n - 1) {
+				out << rand() % 3 << rand() % 9 + 1 << '.' << rand() % 1 << rand() % 9 + 1 << '.' << rand() % 5000 << ' ' << rand() % 10000 << " +" << rand() % 1000000;
+			}
+			else {
+				out << rand() % 3 << rand() % 9 + 1 << '.' << rand() % 1 << rand() % 9 + 1 << '.' << rand() % 5000 << ' ' << rand() % 10000 << " +" << rand() % 1000000 << endl;
+			}
+		}
+		out.close();
+	}
+}
+int Ten(int a) {
+	int b = 1;
+	for (int i = a; i != 0; i--) {
+		b *= 10;
+	}
+	return(b);
+}
+void Print(str* a) {
+	for (int i = 0; i < n; i++) {
+		cout << a[i].name << ' ';
+		cout << a[i].type << ' ';
+		if (a[i].day < 10) cout << '0' << a[i].day << '.';
+		else cout << a[i].day << '.';
+		if (a[i].mou < 10) cout << '0' << a[i].mou;
+		else cout << a[i].mou;
+		cout << '.' << a[i].year << ' ' << a[i].per << ' ' << a[i].numb << endl;
+	}
+}
+
+void HelpPrint(bool a) { // 0 - kmp, 1 - rait
+	string s;
+	if (a) {
+		cout << "\nRait resulr\n";
+		std::ifstream rait;          // поток для записи
+		rait.open("C:\\Rait.txt");   // окрываем файл для записи
+		while (!rait.eof()) {
+			getline(rait, s);
+			cout << s << endl;
+		}
+		rait.close();
+	}
+	else {
+		cout << "\nKMP resulr\n";
+		std::ifstream kmp;          // поток для записи
+		kmp.open("C:\\KMP.txt");   // окрываем файл для записи
+		while (!kmp.eof()) {
+			getline(kmp, s);
+			cout << s << endl;
+		}
+		kmp.close();
+	}
+}
+
+int FF(string y, int FromI, int ToI, char s) {//Функция поиска индекса первого вхождения
+	int summ = 0;
+	for (int i = FromI; i != ToI; i++) {
+		if (y[i] == s) summ++;
+	}
+	if (summ != 0) return summ;
+	else return -1;
+}
+bool restE(string y, int FromI, string x, int ToI) {//Проверка, что все символы совпадают
+	for (int i = FromI; i != ToI; i++) {
+		if (y[i] != x[i - FromI]) return false;
+	}
+	return true;
+}
+int* preB(string x, int m) {//Стадия препроцессинга
+	int result[256];
+	for (int i = 0; i < 256; i++) {
+		result[i] = m;
+	}
+	for (int i = 0; i < m - 2; i++) {
+		result[x[i]] = m - i - 1;
+	}
+	return result;
+}
+int Raita(string x, str y[], int NoMore) {
+	int count = 0;
+	std::ofstream rait;          // поток для записи
+	rait.open("C:\\Rait.txt"); // окрываем файл для записи
+	for (int k = 0; k < n; k++) {
+		int m = x.length();
+		int r = y[k].name.length();
+		string yy = y[k].name;
+		int* bmBc;
+		int match = 0;
+		char c, first, middle, last;
+		if (m == 0) {
+			continue;
+		}
+		else if (m == 1) {
+			match = 0;
+			while (match < r) {
+				match = FF(yy, match, r - 1, x[0]);
+				if (match != -1) {
+					count += match; rait << y[k].name << " " << y[k].type << " ";
+					if (y[k].day < 10)  rait << "0" << y[k].day << ".";
+					else  rait << y[k].day << '.';
+					if (y[k].mou < 10)  rait << "0" << y[k].mou << "." << y[k].year << ' ' << y[k].per << ' ' << y[k].numb << endl;
+					else  rait << y[k].mou << "." << y[k].year << ' ' << y[k].per << ' ' << y[k].numb << endl;
+					break;
+				}
+				else {
+					break;
+				}
+			}
+		}
+		if (match != 0) continue;
+		bmBc = preB(x, m);
+		first = x[0];
+		middle = x[m / 2];
+		last = x[m - 1];
+		int j = 0;
+		while (j <= r - m) {
+			c = y[k].name[j + m - 1];
+			if (last == c && middle == y[k].name[j + m / 2] && first == y[k].name[j] && restE(yy, j, x, j + m - 2)) {
+				count++; rait << y[k].name << " " << y[k].type << " ";
+				if (y[k].day < 10)  rait << "0" << y[k].day << ".";
+				else  rait << y[k].day << '.';
+				if (y[k].mou < 10)  rait << "0" << y[k].mou << "." << y[k].year << ' ' << y[k].per << ' ' << y[k].numb << endl;
+				else  rait << y[k].mou << "." << y[k].year << ' ' << y[k].per << ' ' << y[k].numb << endl;
+				break;
+			}
+			j += bmBc[c];
+		}
+	}
+	for (int k = 0; k < n; k++) {
+		int m = x.length();
+		int r = y[k].type.length();
+		string yy = y[k].type;
+		int match = 0;
+		int* bmBc;
+		char c, first, middle, last;
+		if (m == 0) {
+			continue;
+		}
+		else if (m == 1) {
+			match = 0;
+			while (match < r) {
+				match = FF(yy, match, r - 1, x[0]);
+				if (match != -1) {
+					count += match; rait << y[k].name << " " << y[k].type << " ";
+					if (y[k].day < 10)  rait << "0" << y[k].day << ".";
+					else  rait << y[k].day << '.';
+					if (y[k].mou < 10) rait << "0" << y[k].mou << "." << y[k].year << ' ' << y[k].per << ' ' << y[k].numb << endl;
+					else  rait << y[k].mou << "." << y[k].year << ' ' << y[k].per << ' ' << y[k].numb << endl;
+					break;
+				}
+				else {
+					break;
+				}
+			}
+		}
+		if (match != 0) continue;
+		bmBc = preB(x, m);
+		first = x[0];
+		middle = x[m / 2];
+		last = x[m - 1];
+		int j = 0;
+		while (j <= r - m) {
+			c = y[k].type[j + m - 1];
+			if (last == c && middle == y[k].type[j + m / 2] && first == y[k].type[j] && restE(yy, j, x, j + m - 2)) {
+				count++; rait << y[k].name << " " << y[k].type << " ";
+				if (y[k].day < 10)  rait << "0" << y[k].day << ".";
+				else  rait << y[k].day << '.';
+				if (y[k].mou < 10)  rait << "0" << y[k].mou << "." << y[k].year << ' ' << y[k].per << ' ' << y[k].numb << endl;
+				else  rait << y[k].mou << "." << y[k].year << ' ' << y[k].per << ' ' << y[k].numb << endl;
+				break;
+			}
+			j += bmBc[c];
+		}
+	}
+	rait.close();
+	if (count < NoMore) {
+		cout << "Raita: \nNubmer of coincidence: ";
+		return count;
+	}
+	else cout << "Raita: \ncount > k, error\n";
+	return -1;
+}
+
+void part(string p, int pi[]) {
+	int m = p.length();
+	int j = 0;
+	pi[0] = 0;
+	pi[1] = 0;
+
+	for (int i = 1; i < m; i++)
+	{
+		while ((p[j] != p[i]) && (j > 0))
+			j = pi[j];
+		if (p[j] == p[i])
+			j++;
+		pi[i + 1] = j;
+	}
+	for (int i = 0; i < m; i++)
+	{
+		pi[i] = pi[i + 1];
+	}
+}
+int KMP(string p, str a[], int NoMore) { //еее работаем
+	int count = 0;
+	std::ofstream kmp;          // поток для записи
+	kmp.open("C:\\KMP.txt"); // окрываем файл для записи
+	for (int k = 0; k < n; k++) {
+		int len = a[k].name.length();
+		int m = p.length();
+		int* pi = new int[m];
+		part(p, pi);
+		int j = 0;
+		for (int i = 0; i < len; i++) {
+			while ((p[j] != a[k].name[i]) and (j > 0))
+				j = pi[j - 1];
+			if (p[j] == a[k].name[i]) j++;
+			if (j == m) { count++; kmp << a[k].name << " " << a[k].type << " ";
+			if (a[k].day < 10) kmp << "0" << a[k].day << ".";
+			else kmp << a[k].day << '.';
+			if (a[k].mou < 10) kmp << "0" << a[k].mou << "." << a[k].year << ' ' << a[k].per << ' ' << a[k].numb << endl;
+			else kmp << a[k].mou << "." << a[k].year << ' ' << a[k].per << ' ' << a[k].numb << endl;
+			}
+		}
+	}
+	for (int k = 0; k < n; k++) {
+		int len = a[k].type.length();
+		int m = p.length();
+		int* pi = new int[m];
+		part(p, pi);
+		int j = 0;
+		for (int i = 0; i < len; i++) {
+			while ((p[j] != a[k].type[i]) and (j > 0))
+				j = pi[j - 1];
+			if (p[j] == a[k].type[i]) j++;
+			if (j == m) { count++; kmp << a[k].name << " " << a[k].type << " ";
+			if (a[k].day < 10) kmp << "0" << a[k].day << ".";
+			else kmp << a[k].day << '.';
+			if (a[k].mou < 10) kmp << "0" << a[k].mou << "." << a[k].year << ' ' << a[k].per << ' ' << a[k].numb << endl;
+			else kmp << a[k].mou << "." << a[k].year << ' ' << a[k].per << ' ' << a[k].numb << endl;
+			}
+		}
+	}
+	kmp.close();
+	if (NoMore >= count) {
+		cout << "KMP: \nNumber of coincidences: ";
+		return count;
+	}
+	else {
+		cout << "KMP: \nK < count, error\n";
+		return -1;
+	}
+}
+
+
+set <char> ss{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };  //для проверки циферок
+
+
+void Read() {
+	In(); //создаю файл на 11111 записей
+	int g;  //темповая переменная для свапа массива
+	char w = ' '; //темповая переменная чтобы файл читать
+	int i = 0;
+	int j = 0;
+	ifstream s("C:\\Main.txt");
+	string r;
+	int d[4];
+	//getline(s, r);
+	while (!s.eof()) {  //читаю файл, формирую массив для сортировки
+		int fio = 0; //читаю фио (2 words, first and second name)	
+		s.get(w); 
+		wow[j].name = w;
+		while (fio <= 1) {
+			s.get(w);
+			if (w == ' ') { 
+				fio++; 
+				if (fio == 1) {
+					wow[j].name += w;
+				}
+			}
+			else wow[j].name += w;
+		}
+		fio = 0;
+		i = 0;			//читаю тип номера
+		s.get(w);
+		wow[j].type = w;
+		while (w != ' ') {
+			s.get(w);
+			wow[j].type += w;
+			i++;
+		}
+		while (!ss.count(w)) {        //читаю дату
+			s.get(w);
+		}
+		wow[j].day = (w - '0') * 10;
+		s.get(w);
+		wow[j].day += w - '0';
+		s.get(w); s.get(w);
+		wow[j].mou = (w - '0') * 10;
+		s.get(w);
+		wow[j].mou = (w - '0');
+		s.get(w); s.get(w);
+		wow[j].year = (w - '0') * 1000;
+		s.get(w);
+		wow[j].year += (w - '0') * 100;
+		s.get(w);
+		wow[j].year += (w - '0') * 10;
+		s.get(w);
+		wow[j].year += (w - '0');
+		s.get(w);
+		while (!ss.count(w)) {
+			s.get(w);
+		}
+		i = 0;
+		d[i] = w - '0';
+		while (ss.count(w)) {  //доп массив для кол-ва дней
+			s.get(w);
+			if (!ss.count(w)) break;
+			i++;
+			d[i] = w - '0';
+		}
+		if (i == 3) {  //читаю дни
+			g = d[0];
+			d[0] = d[3];
+			d[3] = g;
+			g = d[1];
+			d[1] = d[2];
+			d[2] = g;
+		}
+		else if (i == 2) {
+			g = d[0];
+			d[0] = d[2];
+			d[2] = g;
+		}
+		else if (i == 1) {
+			g = d[0];
+			d[0] = d[1];
+			d[1] = g;
+		}
+		wow[j].per = 0;
+		while (i != -1) {  //сколько дней 
+			if (i == 0)  wow[j].per += d[i];
+			else wow[j].per += d[i] * Ten(i);
+			i--;
+		}
+		while (w != '+') {
+			s.get(w);
+		}
+		wow[j].numb = w;  //в этом блоке номер телефона
+		getline(s, r);
+		wow[j].numb += r;
+		j++;
+	}
+}
+int main()
+{
+	Read();
+	Print(wow);
+	cout << Raita("Jolly", wow, 100) << endl;
+	cout << KMP("Jolly", wow, 100) << endl;
+	HelpPrint(0);
+	HelpPrint(1);
+}
